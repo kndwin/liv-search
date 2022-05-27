@@ -1,0 +1,1 @@
+{"id":"ee2c0a9e-adfd-4308-8098-bb2bebf37e7d","space":6406,"runtime":"nodejs14.x","name":"liv-search","path":"io7m8y","project":"c0wtyrct","account":"144798365827","region":"ap-southeast-1","deps":["express@^4.18.0","cors@^2.8.5"],"envs":null,"public":true,"log_level":"debug","cron":""}
