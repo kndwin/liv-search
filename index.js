@@ -3,9 +3,9 @@ const app = express();
 const cors = require("cors");
 
 const { assets, apartments } = require("./mockData");
-const { groupJsonByField } = require("./util");
+const { groupJsonByField, permutator } = require("./util");
 
-app.use(cors())
+app.use(cors());
 app.get("/apartments", (req, res) => {
   let filteredApartments = apartments;
 
@@ -37,25 +37,37 @@ app.get("/apartments", (req, res) => {
     );
   }
 
-  const apartmentsByAssets = groupJsonByField(filteredApartments, "asset");
-	
-	console.log(JSON.stringify(apartmentsByAssets, null, 2))
+  const uniqueFilters = filteredApartments
+    // Grab only "bedrooms" and "asset" properties
+    .map((apartment) => ({
+      bedrooms: apartment.bedrooms,
+      asset: apartment.asset,
+    }))
+    // Remove all duplicates from above result
+    .filter(
+      (value, index, self) =>
+        index ===
+        self.findIndex(
+          (t) => t.bedrooms === value.bedrooms && t.asset === value.asset
+        )
+    );
 
-  const apartmentsByAssetsWithMetadata = Object.entries(apartmentsByAssets)
-		.map(([asset, apartments]) => {
-      console.log({ asset, apartments });
-      return {
-        apartments,
-			  metadata: {
-				  asset,
-				  ...assets[asset],
-			  }
-      } 
-    }
-  );
-  
+  const groupedApartments = uniqueFilters.map(({ bedrooms, asset }) => {
+    const apartments = filteredApartments.filter(
+      (a) => a.asset === asset && a.bedrooms === bedrooms
+    );
+    const metadata = {
+      asset,
+      ...assets[asset],
+      bedrooms,
+    };
+    return {
+      apartments,
+      metadata,
+    };
+  });
 
-  res.send(apartmentsByAssetsWithMetadata);
+  res.send(groupedApartments);
 });
 
 module.exports = app;
